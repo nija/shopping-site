@@ -7,7 +7,8 @@ Authors: Joel Burton, Christian Fernandez, Meggie Mahnken.
 """
 
 
-from flask import Flask, render_template, redirect, flash
+#from flask import Flask, render_template, redirect, flash
+from flask import Flask, render_template, redirect, flash, session
 import jinja2
 
 import melons
@@ -50,7 +51,7 @@ def show_melon(melon_id):
     Show all info about a melon. Also, provide a button to buy that melon.
     """
 
-    melon = melons.get_by_id(59)
+    melon = melons.get_by_id(melon_id)
     print melon
     return render_template("melon_details.html",
                            display_melon=melon)
@@ -71,6 +72,8 @@ def shopping_cart():
     #   - keep track of the total amt of the entire order
     # - hand to the template the total order cost and the list of melon types
 
+    melon_ids = [ melon_id for melon_id in session["cart"] ] 
+
     return render_template("cart.html")
 
 
@@ -87,8 +90,22 @@ def add_to_cart(id):
     # The logic here should be something like:
     #
     # - add the id of the melon they bought to the cart in the session
+    # If there is a cart
+    if "cart" in session:
+        # If we already have this type of melon in the cart
+        if id in session["cart"]:
+            session["cart"][id] += 1
+        # if this is a new melon type for our cart
+        else:
+            session["cart"][id] = 1
+    # create a cart and add the melon(s)
+    else:
+        session["cart"] = {id: 1}
 
-    return "Oops! This needs to be implemented!"
+    
+    flash("Your item with item id {} has been added to cart!".format(id))
+    print session
+    return redirect("/melons")
 
 
 @app.route("/login", methods=["GET"])
@@ -119,6 +136,7 @@ def checkout():
     # scope of this exercise.
 
     flash("Sorry! Checkout will be implemented in a future version.")
+    flash("Hello monkey people!")
     return redirect("/melons")
 
 
