@@ -71,10 +71,19 @@ def shopping_cart():
     #   - keep track of the total amt ordered for a melon-type
     #   - keep track of the total amt of the entire order
     # - hand to the template the total order cost and the list of melon types
+    cart_thingy = []
+    running_sum = 0.0
+    # Creates a list of tuples containing melon object, qty
+    if "cart" in session:
+        for melon_id in session["cart"]:
+            melon = melons.get_by_id(int(melon_id))
+            qty = session["cart"][melon_id]
+            price_per_melon = melon.price 
+            running_sum += price_per_melon * qty
+            cart_thingy.append((melon, qty))
 
-    melon_ids = [ melon_id for melon_id in session["cart"] ] 
-
-    return render_template("cart.html")
+    # Passing a list of tuples containing [(melon object, qty)]
+    return render_template("cart.html", cart=cart_thingy, total=running_sum)
 
 
 @app.route("/add_to_cart/<int:id>")
@@ -93,8 +102,9 @@ def add_to_cart(id):
     # If there is a cart
     if "cart" in session:
         # If we already have this type of melon in the cart
-        if id in session["cart"]:
-            session["cart"][id] += 1
+        if str(id) in session["cart"]:
+            session["cart"][str(id)] += 1
+
         # if this is a new melon type for our cart
         else:
             session["cart"][id] = 1
@@ -104,7 +114,7 @@ def add_to_cart(id):
 
     
     flash("Your item with item id {} has been added to cart!".format(id))
-    print session
+    # print session
     return redirect("/melons")
 
 

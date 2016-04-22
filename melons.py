@@ -31,7 +31,7 @@ class Melon(object):
         """Return price formatted as string $x.xx"""
 
         return "$%.2f" % self.price
-
+  
     def __repr__(self):
         """Convenience method to show information about melon in console."""
 
